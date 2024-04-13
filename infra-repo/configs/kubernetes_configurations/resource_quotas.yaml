@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default-resource-quotas
+  namespace: default
+spec:
+  hard:
+    requests.cpu: "4"  # Total CPU requests across all pods in the namespace cannot exceed 4 cores.
+    requests.memory: 8Gi  # Total memory requests across all pods in the namespace cannot exceed 8 GiB.
+    limits.cpu: "8"  # Total CPU limits across all pods in the namespace cannot exceed 8 cores.
+    limits.memory: 16Gi  # Total memory limits across all pods in the namespace cannot exceed 16 GiB.
+    pods: "100"  # Total number of pods that can be created in the namespace cannot exceed 100.
+
+#sets a conservative or baseline quota for all namespaces to ensure that no single project or namespace consumes disproportionate resources that could impact 
+#the overall health and availability of the cluster. This is crucial in multi-tenant environments where multiple projects or teams share the same Kubernetes cluster.

@@ -1,0 +1,34 @@
+name: Update Deployments
+
+on:
+  repository_dispatch:
+    types: [app-update, model-update]
+
+jobs:
+  update-app-deployment:
+    if: github.event.action == 'app-update'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update App Kubernetes Manifest
+        run: |
+          new_app_version="${{ github.event.client_payload.app_version }}"
+          sed -i 's|image: myorg/myapp:.*|image: myorg/myapp:"${new_app_version}"|' k8s/app-deployment.yaml
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "Update app image to $new_app_version"
+          git push
+
+  update-model-deployment:
+    if: github.event.action == 'model-update'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update Model Kubernetes Manifest
+        run: |
+          new_model_version="${{ github.event.client_payload.model_version }}"
+          sed -i 's|MODEL_VERSION:.*|MODEL_VERSION: "${new_model_version}"|' k8s/model-deployment.yaml
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "Update model version to $new_model_version"
+          git push

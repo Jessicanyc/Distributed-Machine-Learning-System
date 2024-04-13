@@ -1,0 +1,14 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-processing
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: data-processing
+        image: registry/myapp:latest
+        ports:
+        - containerPort: 5000

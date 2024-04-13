@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  repository: myorg/model-serving
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8501
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: model-serving.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          
+# Default values for each environment
+global:
+  namespaceSuffix: "-dev"  # Default to development; override for staging/prod
+resources: {}

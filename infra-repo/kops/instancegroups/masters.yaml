@@ -1,0 +1,52 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: master-us-east-1a
+  labels:
+    kops.k8s.io/cluster: mycluster.example.com
+spec:
+  role: Master
+  image: kope.io/k8s-1.18-debian-stretch-amd64-hvm-ebs-2020-11-19
+  machineType: t3.large
+  minSize: 1
+  maxSize: 1
+  subnets:
+    - us-east-1a
+  additionalSecurityGroups:
+    - sg-12345abcdef
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: master-us-east-1b
+  labels:
+    kops.k8s.io/cluster: mycluster.example.com
+spec:
+  role: Master
+  image: kope.io/k8s-1.18-debian-stretch-amd64-hvm-ebs-2020-11-19
+  machineType: t3.large
+  minSize: 1
+  maxSize: 1
+  subnets:
+    - us-east-1b
+  additionalSecurityGroups:
+    - sg-12345abcdef
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: master-us-east-1c
+  labels:
+    kops.k8s.io/cluster: mycluster.example.com
+spec:
+  role: Master
+  image: kope.io/k8s-1.18-debian-stretch-amd64-hvm-ebs-2020-11-19
+  machineType: t3.large
+  minSize: 1
+  maxSize: 1
+  subnets:
+    - us-east-1c
+  additionalSecurityGroups:
+    - sg-12345abcdef

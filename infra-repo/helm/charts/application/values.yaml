@@ -1,0 +1,51 @@
+# contain the default value for the chart
+replicaCount: 1
+
+nginx
+  image:
+    repository: nginx
+    pullPolicy: IfNotPresent
+    tag: "1.16.0"
+
+frontend:
+  image:
+    repository: myorg/frontend
+    tag: "v1.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 80
+
+backend:
+  image:
+    repository: myorg/model-serving
+    tag: "v1.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8501
+
+service:
+  type: LoadBalancer
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths: ["/"]
+
+resources: {}
+#  limits:
+#    cpu: 100m
+#    memory: 128Mi
+#  requests:
+#    cpu: 100m
+#    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

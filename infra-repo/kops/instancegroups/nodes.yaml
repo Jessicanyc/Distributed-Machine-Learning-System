@@ -1,0 +1,22 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: nodes
+  labels:
+    kops.k8s.io/cluster: mycluster.example.com
+spec:
+  role: Node
+  image: kope.io/k8s-1.18-debian-stretch-amd64-hvm-ebs-2020-11-19
+  machineType: t3.large
+  minSize: 3
+  maxSize: 5
+  rootVolumeSize: 100
+  subnets:
+    - us-west-2a
+    - us-west-2b
+  nodeLabels:
+    kops.k8s.io/instancegroup: nodes
+  taints:
+    - "node-role.kubernetes.io/node=:NoSchedule"
+  additionalSecurityGroups:
+    - sg-08b25d9d0445bac1e

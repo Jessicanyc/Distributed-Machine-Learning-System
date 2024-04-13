@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: logging-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-dev

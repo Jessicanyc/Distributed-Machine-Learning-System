@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+
+    environment {
+        KOPS_STATE_STORE = "s3://my-kops-state-store"
+    }
+
+    stages {
+        stage('Initialize Environment') {
+            // Conditionally run if it's a new cluster setup
+            when {
+                expression { return env.NEW_CLUSTER == 'true' }
+            }
+            steps {
+                script {
+                    sh './scripts/setup.sh'
+                }
+            }
+        }
+
+        stage('Update Cluster') {
+            // Only run for existing cluster updates
+            when {
+                expression { return env.UPDATE_CLUSTER == 'true' }
+            }
+            steps {
+                script {
+                    sh './scripts/update_cluster.sh'
+                }
+            }
+        }
+
+        stage('Validate Cluster') {
+            // Run validation after updates or periodically
+            steps {
+                script {
+                    sh './scripts/validate_cluster.sh'
+                }
+            }
+        }
+
+        stage('Deploy Applications') {
+            // Run for all deployments
+            steps {
+                script {
+                    // Deploy using kubectl or Helm
+                    sh 'kubectl apply -f ./k8s/'
+                    // Or Helm
+                    // sh 'helm upgrade --install my-app ./helm/my-app/'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up temporary files...'
+            sh 'rm -f temp.txt'
+        }
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed.'
+            // Implement additional error handling here
+        }
+    }
+}
+// You can configure NEW_CLUSTER and UPDATE_CLUSTER as parameters in your Jenkins job:
+// Go to your Jenkins job configuration.
+// Under the General section, check the This project is parameterized option.
+// Add Boolean Parameter for both NEW_CLUSTER and UPDATE_CLUSTER, providing default values according to your needs.
