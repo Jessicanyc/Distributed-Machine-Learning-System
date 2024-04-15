@@ -1,0 +1,34 @@
+apiVersion: kubeflow.org/v1
+kind: TFJob
+metadata:
+  name: multi-worker-training
+spec:
+  runPolicy: 
+    cleanPodPolicy: None
+  tfReplicaSpecs:
+    Worker:
+      replicas: 2
+      restartPolicy: Never 
+      template:
+        spec:
+          containers:
+            - name: tensorflow
+              image: kubeflow/multi-worker-strategy:v0.1
+              imagePullPolicy: IfNotPresent 
+              command: ["python",
+                        "/distributed-training.py",
+                        "--saved_model_dir",
+                        "/trained_model/saved_model_versions/2/",
+                        "--checkpoint_dir",
+                        "/trained_model/checkpoint",
+                        "--model_type", "cnn"]
+              volumeMounts:
+                - mountPath: /trained_model
+                  name: training # This refers to the volume named 'training' defined below.
+              resources:
+                limits:
+                  cpu: 500m
+          volumes:
+            - name: training # This name is used here as an identifier within this pod/job.
+              persistentVolumeClaim:
+                claimName: strategy-volume # This must match the actual PVC's metadata.name

@@ -1,0 +1,22 @@
+# an CRD instance
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: tensorflow-serving
+  namespace: model-serving
+spec:
+  predictor:
+    tensorflow:
+      storageUri: "pvc://model-pvc/saved_model"
+      resources: # Resource requests and limits for the container
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+      autoscaling: # Autoscaling settings specific to this InferenceService
+        minReplicas: 1
+        maxReplicas: 5
+        target: 10  # Target concurrency
+        metrics: ["concurrency"]  # Use concurrency as the metric for autoscaling
