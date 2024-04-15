@@ -3,3 +3,12 @@ This repositories implement a distributed ML system using Kubernetes, Kops, Kube
 
 ## workflow
 <img src="mlworkflow.jpg" alt="workflow" width="500" height="600"/>
+
+## structure of distributed-machine-learning-system
+distributed-machine-learning-system comprises 6 repositories 
+- infra-repo
+- k8s-config-repo
+- kubelow-config-repo
+- ml-model-repo
+- app-repo
+- docs-repo
