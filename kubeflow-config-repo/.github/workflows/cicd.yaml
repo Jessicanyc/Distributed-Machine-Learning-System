@@ -1,0 +1,34 @@
+name: Deploy Kubernetes Configurations
+# The workflow triggers on pushes to either the dev or main branches.
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+      # secrets are base64-encoded GitHub secret,KUBECONFIG file provide the necessary credentials to interact with the Kubernetes cluster
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ./kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Deploy to Development
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          kubectl apply -f configs/dev/
+          echo "Deployed to Development Environment!"
+
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          kubectl apply -f configs/prod/
+          echo "Deployed to Production Environment!"

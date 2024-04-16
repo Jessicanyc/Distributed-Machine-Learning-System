@@ -1,0 +1,24 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: tensorflow-serving-ab-test
+  namespace: model-serving
+spec:
+  predictor:
+    canaryTrafficPercent: 20
+    tensorflow:
+      storageUri: "pvc://model-pvc/saved_model_canary"
+      resources:
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+    components:
+      default:
+        tensorflow:
+          storageUri: "pvc://model-pvc/saved_model"
+      canary:
+        tensorflow:
+          storageUri: "pvc://model-pvc/saved_model_canary"
