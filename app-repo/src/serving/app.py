@@ -21,11 +21,11 @@ class OutputData(BaseModel):
 async def predict(input_data: InputData):
     processed_data = preprocess(input_data.dict())  # Convert Pydantic model to dict and preprocess
     
-    # Forward the processed data to TensorFlow Serving
-    tf_serving_url = "http://tensorflow-serving:8501/v1/models/my_model:predict"
-    response = requests.post(tf_serving_url, json={"instances": [processed_data]})
-    
-    # Check for errors in TensorFlow Serving response
+    # Forward the processed data to KServe
+    kserve_url = "http://<kservice-name>.<namespace>.example.com/v1/models/<model-name>:predict"
+    response = requests.post(kserve_url, json={"instances": [processed_data]})
+   
+    # Check for errors in KServe response
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Error processing the request")
 
