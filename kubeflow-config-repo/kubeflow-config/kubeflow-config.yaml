@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kubeflow
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: kubeflow
+  name: kubeflow-admin
+rules:
+- apiGroups: ["kubeflow.org"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeflow-admin-binding
+  namespace: kubeflow
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: kubeflow
+roleRef:
+  kind: Role
+  name: kubeflow-admin
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Example of deploying a specific Kubeflow component, such as the central dashboard
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: centraldashboard
+  namespace: kubeflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: centraldashboard
+  template:
+    metadata:
+      labels:
+        app: centraldashboard
+    spec:
+      containers:
+      - name: centraldashboard
+        image: gcr.io/kubeflow-images-public/centraldashboard:v2.0.0
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: centraldashboard
+  namespace: kubeflow
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: centraldashboard

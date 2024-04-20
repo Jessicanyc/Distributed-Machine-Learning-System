@@ -1,0 +1,20 @@
+# define how Argo CD should manage the synchronization and deployment of the Kubeflow configurations stored in a Git repository.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeflow
+  namespace: argocd  # This should be the namespace where Argo CD is installed
+spec:
+  project: default  # refers to an Argo CD project under which this application is grouped. Projects in Argo CD are used to group applications and manage permissions, quotas, and more
+  source:
+    repoURL: 'https://github.com/Ditributed-Machine-Learning-System/kubeflow-config-repo.git'  #The URL to the Git repository containing the Kubeflow configuration
+    targetRevision: HEAD  # Branch, tag, or commit to sync from
+    path: kubeflow-config  # Path within the repo to the Kubeflow configuration directory
+  destination:
+    server: 'https://kubernetes.default.svc'  # Cluster URL; use Kubernetes internal API server URL to deploy within the same cluster
+    namespace: kubeflow  # Namespace in the cluster where Kubeflow should be deployed
+  syncPolicy:
+    automated:  # Enables automatic synchronization of the application
+      syncOptions: ["CreateNamespace=true"]  # Automatically creates the namespace if it does not exist
+      prune: true  # Automatically delete resources in the cluster that are not present in the repository
+      selfHeal: true  # Automatically attempt to reapply the desired state if deviations are detected

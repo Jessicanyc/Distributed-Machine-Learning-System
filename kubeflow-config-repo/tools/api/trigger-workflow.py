@@ -18,7 +18,7 @@ def trigger_workflow():
     }
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {your_github_token}"
+        "Authorization": f"token {github_token}"
     }
 
     response = requests.post(url, json=payload, headers=headers)

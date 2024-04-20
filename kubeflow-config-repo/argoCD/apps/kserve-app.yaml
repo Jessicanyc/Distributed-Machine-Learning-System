@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kserve-model-deployment
+  namespace: argocd  # Assuming Argo CD is installed in the 'argocd' namespace
+spec:
+  project: default  # Argo CD project, can create custom projects as needed
+
+  # Source of the configuration
+  source:
+    repoURL: 'https://github.com/username/ml-model-repo.git'
+    targetRevision: HEAD  # can specify a branch, tag, or commit
+    path: KServe  # Path within the repository where KServe configs are stored
+
+  # Destination cluster and namespace where the application should be deployed
+  destination:
+    server: 'https://kubernetes.default.svc'  # Assuming deploying to the same cluster
+    namespace: model-serving  # The namespace where KServe is running
+
+  # Sync policy
+  syncPolicy:
+    automated:  # Enables automatic deployment upon changes detection
+      prune: true  # Allows Argo CD to delete resources that are no longer in Git
+      selfHeal: true  # Enables self-healing to correct drifts in the cluster state
+
+    # Define hooks for pre and post synchronization
+    syncOptions:
+      - CreateNamespace=true  # Ensures the namespace is created if it does not exist
+
+    syncHooks:
+      preSync:
+        - exec:
+            command: ["sh", "-c", "echo Pre-sync hook running..."]
+      postSync:
+        - exec:
+            command: ["sh", "-c", "echo Post-sync hook completed."]
+
+  # Optionally, to specify resource ignore differences if certain fields should be ignored during synchronization
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

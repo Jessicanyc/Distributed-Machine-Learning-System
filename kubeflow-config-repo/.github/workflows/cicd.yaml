@@ -1,34 +1,56 @@
-name: Deploy Kubernetes Configurations
-# The workflow triggers on pushes to either the dev or main branches.
+name: Continuous Integration and Deployment
+
 on:
   push:
     branches:
       - dev
       - main
+    paths:
+      - 'pipelines/**'
+      - 'KServe/**'
+      - 'model_store/**'
 
 jobs:
-  deploy:
+  pipeline-deployment:
     runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.message, '[trigger pipeline]')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: pip install kfp
+
+      - name: Deploy Kubeflow Pipeline
+        run: python ./pipelines/deployment/deploy_pipeline.py ./pipelines/training/pipeline.py MyPipelineFunction https://<your-kubeflow-host> MyExperiment
+
+  model-deployment:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.message, '[trigger model-deployment]')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
-      # secrets are base64-encoded GitHub secret,KUBECONFIG file provide the necessary credentials to interact with the Kubernetes cluster
+
       - name: Configure kubectl
         run: |
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ./kubeconfig
           export KUBECONFIG=./kubeconfig
 
-      - name: Deploy to Development
+      - name: Deploy KServe in Development
         if: github.ref == 'refs/heads/dev'
-        run: |
-          kubectl apply -f configs/dev/
-          echo "Deployed to Development Environment!"
+        run: kubectl apply -f KServe/dev/inference-service-ab-testing.yaml
 
-      - name: Deploy to Production
+      - name: Deploy KServe in Production
         if: github.ref == 'refs/heads/main'
-        run: |
-          kubectl apply -f configs/prod/
-          echo "Deployed to Production Environment!"
+        run: kubectl apply -f KServe/prod/model_serving.yaml
+
